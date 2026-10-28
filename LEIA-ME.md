@@ -3,7 +3,8 @@
 Página de cartinhas com tamanhos (camisa ou blusa, calça e bermuda, calçado). As respostas caem numa planilha do Google, em letras maiúsculas.
 
 Arquivos:
-- `index.html`: a página inteira (imagens e música já embutidas). É o que o GitHub Pages publica.
+- `index.html`: a página. Já está ligada ao Apps Script (campo `endpoint`).
+- `assets/`: floresta (`cena.jpg`), trenó (`trineo.webp`) e música (`musica.mp3`). Para trocar a música, substitua `assets/musica.mp3` mantendo o nome.
 - `apps-script.gs`: código que recebe as respostas e grava na planilha.
 
 ## 1. Criar a planilha e o script
@@ -26,7 +27,7 @@ Se mudar o código depois, use Implantar > Gerenciar implantações > lápis > V
 
 ## 3. Ligar a página à planilha
 
-1. Abra `index.html` e procure a linha:
+1. (Já feito neste repositório.) Abra `index.html` e procure a linha:
    `const CONFIG = { endpoint: "" };`
 2. Cole a URL entre as aspas:
    `const CONFIG = { endpoint: "https://script.google.com/macros/s/XXXX/exec" };`

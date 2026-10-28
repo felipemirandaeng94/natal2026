@@ -301,7 +301,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px soli
    página avisa isso claramente. Troque destination.submit se o destino
    precisar de outro formato.
    ===================================================================== */
-const CONFIG = { endpoint: "" };
+const CONFIG = { endpoint: "https://script.google.com/macros/s/AKfycbwA6tNx0njzhGC7aqC1_sBSL2_uzLbWssCyyCD3gis6HDCyPovkmqnPThtZpl40vLSG/exec" };
 const delay = function(ms){ return new Promise(function(r){ setTimeout(r, ms); }); };
 const destination = {
   connected: function(){ return Boolean(CONFIG.endpoint); },

@@ -718,33 +718,38 @@ $("#again").addEventListener("click", function(){
       if (k >= 1){ clearInterval(fadeId); if (done) done(); }
     }, 50);
   }
+  const GESTURES = ["pointerup", "touchend", "click", "keydown"];
+  let armed = true;
+  function arm(){ armed = true; GESTURES.forEach(function(g){ document.addEventListener(g, first, true); }); }
+  function disarm(){ armed = false; GESTURES.forEach(function(g){ document.removeEventListener(g, first, true); }); }
+  /* Só para de escutar quando o áudio de fato tocou: no celular, um toque que termina uma rolagem
+     não conta como gesto e o play() é recusado, então a próxima tentativa precisa continuar valendo. */
   function start(){
+    if (wanted) return;
     wanted = true; paint(true);
     audio.volume = 0;
-    const p = audio.play();
-    if (p && p.catch) p.catch(function(){ wanted = false; paint(false); });
-    fade(TARGET, 1500);
+    let p; try { p = audio.play(); } catch(_){}
+    Promise.resolve(p).then(function(){
+      if (!wanted){ audio.pause(); return; }
+      disarm(); fade(TARGET, 1500);
+    }).catch(function(){ wanted = false; paint(false); arm(); });
   }
   function stop(){
     wanted = false; paint(false);
-    fade(0, 700, function(){ audio.pause(); });
+    fade(0, 700, function(){ if (!wanted) audio.pause(); });
   }
-  let armed = true;
-  const GESTURES = ["click", "touchend", "keydown"];
-  function disarm(){ armed = false; GESTURES.forEach(function(g){ document.removeEventListener(g, first, true); }); }
-  /* primeiro toque, clique ou tecla em qualquer lugar liga a música (uma vez só) */
+  /* primeiro toque, clique ou tecla em qualquer lugar liga a música */
   function first(e){
-    if (!armed) return;
+    if (!armed || wanted) return;
     if (e.type === "keydown" && ["Tab", "Shift", "Control", "Alt", "Meta"].indexOf(e.key) !== -1) return;
-    disarm();
     if (btn.contains(e.target)) return; /* o próprio botão cuida do clique */
-    if (!wanted) start();
+    start();
   }
-  GESTURES.forEach(function(g){ document.addEventListener(g, first, true); });
-  btn.addEventListener("click", function(){ disarm(); if (wanted) stop(); else start(); });
+  arm();
+  btn.addEventListener("click", function(){ if (wanted) stop(); else start(); });
   /* tentativa ao abrir: os navegadores quase sempre bloqueiam, e então vale o primeiro gesto */
   audio.volume = 0;
-  try { const p0 = audio.play(); if (p0 && p0.then) p0.then(function(){ if (armed){ disarm(); } wanted = true; paint(true); audio.volume = 0; fade(TARGET, 1500); }).catch(function(){}); } catch(_){}
+  try { const p0 = audio.play(); if (p0 && p0.then) p0.then(function(){ if (wanted) return; wanted = true; paint(true); disarm(); fade(TARGET, 1500); }).catch(function(){}); } catch(_){}
   document.addEventListener("visibilitychange", function(){
     if (document.hidden){ if (wanted) audio.pause(); }
     else if (wanted){ const p = audio.play(); if (p && p.catch) p.catch(function(){ wanted = false; paint(false); }); }
